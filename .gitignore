@@ -1,0 +1,97 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+preprocessing.db
+
+# Logs
+logs/
+*.log
+
+# Data directories (processed data, temp files)
+data/processed/
+data/temp/
+data/raw/*.csv
+data/raw/*.xlsx
+data/raw/*.json
+data/raw/*.parquet
+data/raw/*.txt
+data/raw/*.pdf
+data/raw/*.doc
+data/raw/*.docx
+data/raw/*.jpg
+data/raw/*.jpeg
+data/raw/*.png
+data/raw/*.bmp
+data/raw/*.tiff
+
+# Keep directory structure but ignore files
+!data/processed/.gitkeep
+!data/raw/.gitkeep
+!data/temp/.gitkeep
+!logs/.gitkeep
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.pyc
+test_data.csv
+processed_output.csv
