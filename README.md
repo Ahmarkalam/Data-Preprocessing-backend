@@ -130,22 +130,7 @@ curl "http://localhost:8000/jobs/JOB_ID/download" \
   -o processed_data.csv
 ```
 
-## 🏗️ Project Structure
 
-```
-data-preprocessing-backend/
-├── src/
-│   ├── api/              # FastAPI routes and middleware
-│   ├── core/             # Data processors (tabular, image, text)
-│   ├── database/         # Database models and CRUD operations
-│   ├── pipelines/        # Job management
-│   └── utils/            # Utilities (logging, etc.)
-├── scripts/              # Management scripts
-├── tests/                # Test files
-├── config/               # Configuration
-├── data/                 # Data storage (gitignored)
-└── logs/                 # Log files (gitignored)
-```
 
 ## 🔧 Configuration
 
