@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import re
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 from src.utils.logger import get_logger
@@ -38,7 +39,7 @@ class TabularProcessor:
     
     def clean_column_names(self, df: pd.DataFrame) -> pd.DataFrame:
         """Standardize column names"""
-        df.columns = (df.columns
+        df.columns = (df.columns.astype(str)
                       .str.strip()
                       .str.lower()
                       .str.replace(' ', '_')
@@ -110,6 +111,97 @@ class TabularProcessor:
         logger.info(f"Normalized {len(numeric_cols)} numeric columns")
         return df
     
+    def _clean_text_value(self, s: Any) -> Any:
+        if pd.isna(s):
+            return s
+        s = str(s)
+        s = s.strip().lower()
+        if self.config.remove_html:
+            s = re.sub(r'<[^>]+>', '', s)
+        if self.config.remove_emojis:
+            s = re.sub(r'[\U00010000-\U0010ffff]', '', s)
+        if self.config.collapse_punctuation:
+            s = re.sub(r'([.!?;,:\-])\1+', r'\1', s)
+        if self.config.normalize_whitespace:
+            s = ' '.join(s.split())
+        if s in {"", "null", "none", "nan"}:
+            return np.nan
+        return s
+    
+    def clean_text_columns(self, df: pd.DataFrame) -> tuple[pd.DataFrame, int, int]:
+        """Clean text in object columns and count changes"""
+        changed = 0
+        cleaned_cols = 0
+        obj_cols = df.select_dtypes(include=['object']).columns
+        for col in obj_cols:
+            before = df[col].astype(str)
+            df[col] = df[col].apply(self._clean_text_value)
+            cleaned_cols += 1
+            after = df[col].astype(str)
+            changed += (before != after).sum()
+        return df, cleaned_cols, changed
+    
+    def enforce_data_types(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Coerce numeric columns and treat empty strings as NaN"""
+        for col in df.columns:
+            if df[col].dtype == 'object':
+                df[col] = df[col].replace({"": np.nan})
+            else:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        return df
+    
+    def _detect_label_column(self, df: pd.DataFrame) -> Optional[str]:
+        candidates = ["label", "target", "y", "class"]
+        label = self.config.label_column or None
+        if label and label in df.columns:
+            return label
+        for c in candidates:
+            if c in df.columns:
+                return c
+        return None
+    
+    def normalize_labels(self, df: pd.DataFrame) -> tuple[pd.DataFrame, Optional[str], int, int]:
+        """Normalize labels to 0/1 and count normalized/invalid rows"""
+        label_col = self._detect_label_column(df)
+        if not label_col:
+            return df, None, 0, 0
+        normalized = 0
+        truthy = {"1", "true", "yes", "y", "t"}
+        falsy = {"0", "false", "no", "n", "f"}
+        def map_label(v):
+            nonlocal normalized
+            if pd.isna(v):
+                return v
+            if isinstance(v, (int, np.integer)):
+                return 1 if v == 1 else (0 if v == 0 else v)
+            if isinstance(v, (float, np.floating)):
+                return 1 if int(v) == 1 and v == 1.0 else (0 if int(v) == 0 and v == 0.0 else v)
+            s = str(v).strip().lower()
+            if s in truthy:
+                normalized += 1
+                return 1
+            if s in falsy:
+                normalized += 1
+                return 0
+            return v
+        df[label_col] = df[label_col].apply(map_label)
+        invalid_mask = ~df[label_col].isin([0, 1])
+        invalid_rows = int(invalid_mask.sum())
+        df = df[~invalid_mask]
+        df[label_col] = df[label_col].astype('int64')
+        return df, label_col, normalized, invalid_rows
+    
+    def remove_outliers(self, df: pd.DataFrame, threshold: float) -> tuple[pd.DataFrame, int]:
+        """Drop rows considered outliers using z-score across numeric columns"""
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        if len(numeric_cols) == 0:
+            return df, 0
+        z = (df[numeric_cols] - df[numeric_cols].mean()) / df[numeric_cols].std(ddof=0)
+        mask = (np.abs(z) > threshold).any(axis=1)
+        removed = int(mask.sum())
+        df = df[~mask]
+        return df, removed
+    
     def calculate_quality_metrics(self, df: pd.DataFrame, 
                                   original_count: int) -> QualityMetrics:
         """Calculate quality metrics for the processed data"""
@@ -157,17 +249,59 @@ class TabularProcessor:
         
         # Remove duplicates
         if self.config.remove_duplicates:
+            before = len(df)
             df = self.remove_duplicates(df)
+            first_dupe_removed = before - len(df)
+        
+        # Clean text columns
+        if self.config.text_cleaning:
+            df, cleaned_cols, text_changes = self.clean_text_columns(df)
+        else:
+            cleaned_cols, text_changes = 0, 0
+        
+        # Enforce data types
+        if self.config.enforce_data_types:
+            df = self.enforce_data_types(df)
+        
+        # Normalize labels and validate
+        if self.config.label_normalization:
+            df, label_col, labels_normalized, invalid_label_rows = self.normalize_labels(df)
+        else:
+            label_col, labels_normalized, invalid_label_rows = None, 0, 0
         
         # Handle missing values
         if self.config.handle_missing_values:
+            missing_before = int(df.isnull().sum().sum())
             df = self.handle_missing_values(df)
+            missing_after = int(df.isnull().sum().sum())
+            missing_filled = max(0, missing_before - missing_after)
+        else:
+            missing_filled = 0
         
         # Normalize if requested
         if self.config.normalize_data:
+            numeric_cols = df.select_dtypes(include=[np.number]).columns
+            normalized_cols = len(numeric_cols)
             df = self.normalize_data(df)
+        else:
+            normalized_cols = 0
         
-        # Save processed data
+        # Optional outlier removal
+        if self.config.drop_outliers:
+            df, outliers_removed = self.remove_outliers(df, self.config.outlier_threshold)
+        else:
+            outliers_removed = 0
+        
+        # Remove duplicates again after cleaning
+        if self.config.second_duplicate_removal and self.config.remove_duplicates:
+            before2 = len(df)
+            df = self.remove_duplicates(df)
+            second_dupe_removed = before2 - len(df)
+        else:
+            first_dupe_removed = 0
+            second_dupe_removed = 0
+        
+        # Save processed data (final)
         output_path_obj = Path(output_path)
         if output_path_obj.suffix == '.csv':
             df.to_csv(output_path, index=False)
@@ -175,11 +309,33 @@ class TabularProcessor:
             df.to_excel(output_path, index=False)
         elif output_path_obj.suffix == '.parquet':
             df.to_parquet(output_path, index=False)
-        
+        elif output_path_obj.suffix == '.json':
+            df.to_json(output_path, orient="records")
         logger.info(f"Saved processed data to: {output_path}")
         
         # Calculate and return quality metrics
         metrics = self.calculate_quality_metrics(df, original_count)
         logger.info(f"Quality score: {metrics.quality_score}")
+        
+        summary = []
+        if cleaned_cols > 0:
+            summary.append(f"Cleaned text in {cleaned_cols} columns, {text_changes} cells changed")
+        if label_col:
+            summary.append(f"Normalized {labels_normalized} label values in '{label_col}'")
+            if invalid_label_rows > 0:
+                summary.append(f"Dropped {invalid_label_rows} rows with invalid labels")
+        if self.config.handle_missing_values:
+            summary.append(f"Filled {missing_filled} missing values (strategy: {self.config.missing_value_strategy})")
+        if normalized_cols > 0:
+            summary.append(f"Normalized {normalized_cols} numeric columns to 0-1")
+        if self.config.remove_duplicates:
+            if first_dupe_removed > 0:
+                summary.append(f"Removed {first_dupe_removed} duplicates (pre-clean)")
+            if second_dupe_removed > 0:
+                summary.append(f"Removed {second_dupe_removed} duplicates (post-clean)")
+        if outliers_removed > 0:
+            summary.append(f"Dropped {outliers_removed} outlier rows (z-score>{self.config.outlier_threshold})")
+        
+        metrics.issues.extend(summary)
         
         return metrics

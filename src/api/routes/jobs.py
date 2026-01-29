@@ -36,6 +36,18 @@ async def create_job(
     handle_missing_values: bool = Query(True, description="Handle missing values"),
     missing_value_strategy: str = Query("mean", description="Strategy for missing values"),
     normalize_data: bool = Query(False, description="Normalize numeric data"),
+    # Advanced options
+    text_cleaning: bool = Query(True, description="Clean text columns"),
+    remove_html: bool = Query(True, description="Strip HTML tags from text"),
+    remove_emojis: bool = Query(True, description="Remove emojis from text"),
+    collapse_punctuation: bool = Query(True, description="Collapse repeated punctuation"),
+    normalize_whitespace: bool = Query(True, description="Normalize whitespace"),
+    enforce_data_types: bool = Query(True, description="Coerce numeric types and treat empty strings as missing"),
+    label_normalization: bool = Query(True, description="Normalize label column to 0/1"),
+    label_column: Optional[str] = Query(None, description="Explicit label column name"),
+    second_duplicate_removal: bool = Query(True, description="Remove duplicates after cleaning"),
+    drop_outliers: bool = Query(False, description="Drop outlier rows by z-score"),
+    outlier_threshold: float = Query(3.0, description="Z-score threshold for outliers"),
     auto_execute: bool = Query(True, description="Automatically execute the job"),
     client: Client = Depends(get_current_client),
     db: Session = Depends(get_db)
@@ -71,7 +83,18 @@ async def create_job(
             remove_duplicates=remove_duplicates,
             handle_missing_values=handle_missing_values,
             missing_value_strategy=missing_value_strategy,
-            normalize_data=normalize_data
+            normalize_data=normalize_data,
+            text_cleaning=text_cleaning,
+            remove_html=remove_html,
+            remove_emojis=remove_emojis,
+            collapse_punctuation=collapse_punctuation,
+            normalize_whitespace=normalize_whitespace,
+            enforce_data_types=enforce_data_types,
+            label_normalization=label_normalization,
+            label_column=label_column,
+            second_duplicate_removal=second_duplicate_removal,
+            drop_outliers=drop_outliers,
+            outlier_threshold=outlier_threshold
         )
         
         job = job_manager.create_job(
@@ -87,11 +110,13 @@ async def create_job(
             background_tasks.add_task(process_job_in_background, job.job_id)
             logger.info(f"Job {job.job_id} queued for background processing")
         
+        dt = job.data_type.value if hasattr(job.data_type, "value") else job.data_type
+        st = job.status.value if hasattr(job.status, "value") else job.status
         return JobResponse(
             job_id=job.job_id,
             client_id=job.client_id,
-            data_type=job.data_type.value,
-            status=job.status.value,
+            data_type=dt,
+            status=st,
             created_at=job.created_at,
             completed_at=job.completed_at,
             output_path=job.output_path
@@ -130,11 +155,13 @@ async def execute_job(
         if job.quality_metrics:
             quality_metrics = QualityMetricsResponse(**job.quality_metrics.dict())
         
+        dt = job.data_type.value if hasattr(job.data_type, "value") else job.data_type
+        st = job.status.value if hasattr(job.status, "value") else job.status
         return JobDetailResponse(
             job_id=job.job_id,
             client_id=job.client_id,
-            data_type=job.data_type.value,
-            status=job.status.value,
+            data_type=dt,
+            status=st,
             created_at=job.created_at,
             completed_at=job.completed_at,
             quality_metrics=quality_metrics,
@@ -214,8 +241,8 @@ async def list_jobs(
             JobResponse(
                 job_id=job.job_id,
                 client_id=job.client_id,
-                data_type=job.data_type.value,
-                status=job.status.value,
+                data_type=(job.data_type.value if hasattr(job.data_type, "value") else job.data_type),
+                status=(job.status.value if hasattr(job.status, "value") else job.status),
                 created_at=job.created_at,
                 completed_at=job.completed_at,
                 output_path=job.output_path,
@@ -302,11 +329,13 @@ async def cancel_job(
         if job and job.quality_metrics:
             quality_metrics = QualityMetricsResponse(**job.quality_metrics.dict())
         
+        dt = job.data_type.value if hasattr(job.data_type, "value") else job.data_type
+        st = job.status.value if hasattr(job.status, "value") else job.status
         return JobDetailResponse(
             job_id=job.job_id,
             client_id=job.client_id,
-            data_type=job.data_type.value,
-            status=job.status.value,
+            data_type=dt,
+            status=st,
             created_at=job.created_at,
             completed_at=job.completed_at,
             quality_metrics=quality_metrics,
@@ -341,7 +370,8 @@ async def download_processed_file(
         if job.client_id != client.id:
             raise HTTPException(status_code=403, detail="Access denied to this job")
         
-        if job.status.value != "completed":
+        st = job.status.value if hasattr(job.status, "value") else str(job.status)
+        if st != "completed":
             raise HTTPException(status_code=400, detail="Job not completed yet")
         
         if not job.output_path:

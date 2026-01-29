@@ -28,6 +28,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     """Rate limiting middleware based on API key"""
 
     async def dispatch(self, request: Request, call_next):
+        # Skip rate limiting for OPTIONS requests (CORS preflight)
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         # Skip rate limiting for health checks and docs
         if request.url.path in ["/", "/health", "/docs", "/redoc", "/openapi.json"]:
             return await call_next(request)

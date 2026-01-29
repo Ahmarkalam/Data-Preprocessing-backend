@@ -65,7 +65,10 @@ class JobManager:
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = str(output_dir / f"processed_{input_file.name}")
 
-        data_type_enum = DataTypeEnum(data_type.value)
+        # Normalize data_type to handle both Enum and raw strings
+        dt_value = data_type.value if isinstance(data_type, DataType) else str(data_type)
+        data_type_enum = DataTypeEnum(dt_value)
+        data_type_obj = data_type if isinstance(data_type, DataType) else DataType(dt_value)
 
         if db is None:
             with get_db() as session:
@@ -96,7 +99,7 @@ class JobManager:
         return ProcessingJob(
             job_id=job_id,
             client_id=client_id,
-            data_type=data_type,
+            data_type=data_type_obj,
             status=ProcessingStatus.PENDING,
             input_path=input_path,
             output_path=output_path,
@@ -122,7 +125,8 @@ class JobManager:
         start_time = datetime.utcnow()
 
         try:
-            data_type = DataType(db_job.data_type.value)
+            dt_val = db_job.data_type.value if hasattr(db_job.data_type, "value") else str(db_job.data_type)
+            data_type = DataType(dt_val)
             processor_cls = self.processors.get(data_type)
 
             if not processor_cls:
@@ -213,8 +217,10 @@ class JobManager:
             return None
 
         # Convert database model to ProcessingJob
-        data_type = DataType(db_job.data_type.value)
-        status = ProcessingStatus(db_job.status.value)
+        dt_val = db_job.data_type.value if hasattr(db_job.data_type, "value") else str(db_job.data_type)
+        st_val = db_job.status.value if hasattr(db_job.status, "value") else str(db_job.status)
+        data_type = DataType(dt_val)
+        status = ProcessingStatus(st_val)
 
         quality_metrics = None
         if db_job.quality_metrics:
@@ -284,8 +290,10 @@ class JobManager:
 
         jobs = []
         for db_job in db_jobs:
-            data_type = DataType(db_job.data_type.value)
-            job_status = ProcessingStatus(db_job.status.value)
+            dt_val = db_job.data_type.value if hasattr(db_job.data_type, "value") else str(db_job.data_type)
+            st_val = db_job.status.value if hasattr(db_job.status, "value") else str(db_job.status)
+            data_type = DataType(dt_val)
+            job_status = ProcessingStatus(st_val)
 
             quality_metrics = None
             if db_job.quality_metrics:
@@ -327,9 +335,10 @@ class JobManager:
         if not job:
             return {"error": "Job not found"}
 
+        st = job.status.value if hasattr(job.status, "value") else str(job.status)
         return {
             "job_id": job.job_id,
-            "status": job.status.value,
+            "status": st,
             "created_at": job.created_at.isoformat() if job.created_at else None,
             "started_at": None,  # Could be added to ProcessingJob model
             "completed_at": job.completed_at.isoformat() if job.completed_at else None,

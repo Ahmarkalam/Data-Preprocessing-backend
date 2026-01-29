@@ -57,4 +57,16 @@ class ProcessingConfig(BaseModel):
     missing_value_strategy: str = "mean"  # mean, median, mode, drop
     normalize_data: bool = False
     encoding: str = "utf-8"
+    # Advanced options
+    text_cleaning: bool = True
+    remove_html: bool = True
+    remove_emojis: bool = True
+    collapse_punctuation: bool = True
+    normalize_whitespace: bool = True
+    enforce_data_types: bool = True
+    label_normalization: bool = True
+    label_column: Optional[str] = None
+    second_duplicate_removal: bool = True
+    drop_outliers: bool = False
+    outlier_threshold: float = 3.0
     custom_rules: Dict[str, Any] = {}

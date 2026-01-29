@@ -27,18 +27,26 @@ app.add_middleware(RateLimitMiddleware)
 
 # CORS middleware with configurable origins
 allowed_origins = get_allowed_origins()
-# Allow all origins in development if CORS_ORIGINS is not set
-if os.getenv("CORS_ORIGINS") is None and os.getenv("ENVIRONMENT", "development") == "development":
-    allowed_origins = ["*"]
-    logger.warning("CORS: Allowing all origins (development mode). Set CORS_ORIGINS env var for production.")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
-)
+if os.getenv("CORS_ORIGINS") is None and os.getenv("ENVIRONMENT", "development") == "development":
+    # In development, use regex to match localhost ports dynamically
+    logger.warning("CORS: Allowing development origins (localhost/127.0.0.1) with regex.")
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.include_router(clients.router)
 app.include_router(upload.router)

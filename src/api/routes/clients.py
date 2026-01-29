@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr, Field
 
-from src.api.dependencies import get_db
+from src.api.dependencies import get_db, get_current_client
+from src.database.models import Client
 from src.database.crud import (
     create_client, get_client, get_client_by_email,
     list_clients, update_client, delete_client,
@@ -105,12 +106,40 @@ async def create_new_client(
             used_quota_mb=client.used_quota_mb,
             created_at=client.created_at.isoformat()
         )
-    
+
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Error creating client: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.get("/me", response_model=ClientDetailResponse)
+async def get_current_client_details(
+    current_client: Client = Depends(get_current_client),
+    db: Session = Depends(get_db)
+):
+    """
+    Get details of the currently authenticated client
+    """
+    # Get usage stats
+    total_jobs = get_client_job_count(db, current_client.id)
+    completed_jobs = get_client_completed_jobs(db, current_client.id)
+    monthly_usage = get_monthly_usage_summary(db, current_client.id)
+    
+    return ClientDetailResponse(
+        id=current_client.id,
+        name=current_client.name,
+        email=current_client.email,
+        company=current_client.company,
+        is_active=current_client.is_active,
+        plan_type=current_client.plan_type,
+        monthly_quota_mb=current_client.monthly_quota_mb,
+        used_quota_mb=current_client.used_quota_mb,
+        created_at=current_client.created_at.isoformat(),
+        total_jobs=total_jobs,
+        completed_jobs=completed_jobs,
+        monthly_usage=monthly_usage
+    )
 
 @router.get("/{client_id}", response_model=ClientDetailResponse)
 async def get_client_details(
