@@ -319,6 +319,7 @@ class JobManager:
                     completed_at=db_job.completed_at,
                     error_message=db_job.error_message,
                     quality_metrics=quality_metrics,
+                    config=db_job.config or {},
                     metadata=db_job.job_metadata or {},
                 )
             )

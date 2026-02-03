@@ -3,15 +3,27 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, File, CheckCircle, AlertCircle, X, CloudUpload } from 'lucide-react';
 import apiClient from '../api/client';
 
-const FileUpload = ({ onUploadSuccess }) => {
+const FileUpload = ({ onUploadSuccess, maxSizeMB = 50 }) => {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState('idle'); // idle, success, error
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const onDrop = useCallback((acceptedFiles) => {
-    setFile(acceptedFiles[0]);
-    setStatus('idle');
-  }, []);
+    const selectedFile = acceptedFiles[0];
+    if (selectedFile) {
+      if (selectedFile.size > maxSizeMB * 1024 * 1024) {
+        setFile(null);
+        setErrorMsg(`File size exceeds ${maxSizeMB}MB limit.`);
+        return;
+      }
+      setFile(selectedFile);
+      setStatus('idle');
+      setErrorMsg('');
+      setUploadProgress(0);
+    }
+  }, [maxSizeMB]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
@@ -26,18 +38,25 @@ const FileUpload = ({ onUploadSuccess }) => {
   const handleUpload = async () => {
     if (!file) return;
     setUploading(true);
+    setUploadProgress(0);
     
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const response = await apiClient.post('/upload/tabular', formData);
+      const response = await apiClient.post('/upload/tabular', formData, {
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        }
+      });
       
       setStatus('success');
       if (onUploadSuccess) onUploadSuccess(response.data);
     } catch (error) {
       console.error("Upload failed:", error);
       setStatus('error');
+      setErrorMsg(error.response?.data?.detail || 'Upload failed. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -48,6 +67,12 @@ const FileUpload = ({ onUploadSuccess }) => {
       <div className="p-6">
         <h3 className="text-lg font-bold text-slate-800 mb-1">Upload Data</h3>
         <p className="text-sm text-slate-500 mb-4">Supported formats: CSV, JSON, XLSX</p>
+        
+        {errorMsg && !file && (
+           <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
+             <AlertCircle size={16} /> {errorMsg}
+           </div>
+        )}
 
         {!file ? (
           <div 
@@ -65,7 +90,7 @@ const FileUpload = ({ onUploadSuccess }) => {
               {isDragActive ? "Drop the file here" : "Click to upload or drag and drop"}
             </p>
             <p className="text-slate-400 text-xs text-center">
-              Maximum file size 50MB
+              Maximum file size {maxSizeMB}MB
             </p>
           </div>
         ) : (
@@ -98,10 +123,18 @@ const FileUpload = ({ onUploadSuccess }) => {
                 className="w-full btn-primary"
               >
                 {uploading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Uploading...
-                  </>
+                  <div className="flex flex-col w-full gap-2">
+                    <div className="flex justify-between text-xs text-white/90">
+                      <span>Uploading...</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full bg-indigo-700/50 rounded-full h-1.5">
+                      <div 
+                        className="bg-white h-1.5 rounded-full transition-all duration-300" 
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
+                    </div>
+                  </div>
                 ) : (
                   "Start Upload"
                 )}
@@ -115,8 +148,11 @@ const FileUpload = ({ onUploadSuccess }) => {
             )}
 
             {status === 'error' && (
-              <div className="flex items-center gap-2 text-red-600 text-sm font-medium bg-red-50 p-3 rounded-lg border border-red-100">
-                <AlertCircle size={16} /> Upload Failed
+              <div className="flex flex-col gap-1 text-red-600 text-sm font-medium bg-red-50 p-3 rounded-lg border border-red-100">
+                 <div className="flex items-center gap-2">
+                    <AlertCircle size={16} /> Upload Failed
+                 </div>
+                 {errorMsg && <p className="text-xs text-red-500 pl-6">{errorMsg}</p>}
               </div>
             )}
           </div>

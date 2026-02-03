@@ -202,8 +202,79 @@ class TabularProcessor:
         df = df[~mask]
         return df, removed
     
+    def parse_dates(self, df: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+        """Auto-detect and parse date columns"""
+        parsed_cols = 0
+        for col in df.columns:
+            if df[col].dtype == 'object':
+                try:
+                    # Try converting to datetime
+                    temp = pd.to_datetime(df[col], errors='coerce')
+                    # If more than 50% are valid dates (and not all NaT), accept it
+                    valid_ratio = temp.notna().mean()
+                    if valid_ratio > 0.5:
+                        df[col] = temp
+                        parsed_cols += 1
+                except Exception:
+                    continue
+        if parsed_cols > 0:
+            logger.info(f"Parsed {parsed_cols} date columns")
+        return df, parsed_cols
+
+    def encode_categorical(self, df: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+        """Encode categorical variables"""
+        strategy = self.config.encoding_strategy
+        if strategy not in ["onehot", "label"]:
+            return df, 0
+            
+        encoded_cols = 0
+        cat_cols = df.select_dtypes(include=['object', 'category']).columns
+        # Exclude label column if present
+        label_col = self.config.label_column or self._detect_label_column(df)
+        if label_col and label_col in cat_cols:
+            cat_cols = cat_cols.drop(label_col)
+            
+        if len(cat_cols) == 0:
+            return df, 0
+            
+        if strategy == "onehot":
+            original_len = len(df.columns)
+            df = pd.get_dummies(df, columns=cat_cols, dummy_na=False)
+            encoded_cols = len(df.columns) - original_len + len(cat_cols) # rough count of changes
+        elif strategy == "label":
+            for col in cat_cols:
+                df[col] = df[col].astype('category').cat.codes
+                encoded_cols += 1
+                
+        logger.info(f"Encoded {len(cat_cols)} columns using {strategy} strategy")
+        return df, encoded_cols
+
+    def _generate_column_stats(self, df: pd.DataFrame) -> Dict[str, Any]:
+        """Generate detailed statistics for each column"""
+        stats = {}
+        for col in df.columns:
+            try:
+                col_stats = {
+                    "dtype": str(df[col].dtype),
+                    "missing": int(df[col].isnull().sum()),
+                    "unique": int(df[col].nunique())
+                }
+                if pd.api.types.is_numeric_dtype(df[col]):
+                    col_stats.update({
+                        "mean": float(df[col].mean()) if not df[col].empty else None,
+                        "min": float(df[col].min()) if not df[col].empty else None,
+                        "max": float(df[col].max()) if not df[col].empty else None,
+                        "std": float(df[col].std()) if not df[col].empty else None
+                    })
+                stats[str(col)] = col_stats
+            except Exception as e:
+                logger.error(f"Error generating stats for column {col}: {e}")
+                stats[str(col)] = {"error": str(e)}
+        return stats
+
     def calculate_quality_metrics(self, df: pd.DataFrame, 
-                                  original_count: int) -> QualityMetrics:
+                                  original_count: int,
+                                  report_data: Dict[str, Any] = None) -> QualityMetrics:
         """Calculate quality metrics for the processed data"""
         total_records = len(df)
         total_cells = df.size
@@ -233,7 +304,8 @@ class TabularProcessor:
             missing_values_percent=round(missing_percent, 2),
             duplicate_percent=round(duplicate_percent, 2),
             quality_score=round(quality_score, 3),
-            issues=issues
+            issues=issues,
+            report=report_data or {}
         )
     
     def process(self, input_path: str, output_path: str) -> QualityMetrics:
@@ -244,6 +316,20 @@ class TabularProcessor:
         df = self.load_data(input_path)
         original_count = len(df)
         
+        # Initialize stats variables
+        first_dupe_removed = 0
+        second_dupe_removed = 0
+        text_changes = 0
+        cleaned_cols = 0
+        labels_normalized = 0
+        invalid_label_rows = 0
+        missing_filled = 0
+        normalized_cols = 0
+        outliers_removed = 0
+        label_col = None
+        dates_parsed = 0
+        encoded_cols = 0
+
         # Clean column names
         df = self.clean_column_names(df)
         
@@ -256,18 +342,18 @@ class TabularProcessor:
         # Clean text columns
         if self.config.text_cleaning:
             df, cleaned_cols, text_changes = self.clean_text_columns(df)
-        else:
-            cleaned_cols, text_changes = 0, 0
         
         # Enforce data types
         if self.config.enforce_data_types:
             df = self.enforce_data_types(df)
+
+        # Parse dates
+        if self.config.parse_dates:
+            df, dates_parsed = self.parse_dates(df)
         
         # Normalize labels and validate
         if self.config.label_normalization:
             df, label_col, labels_normalized, invalid_label_rows = self.normalize_labels(df)
-        else:
-            label_col, labels_normalized, invalid_label_rows = None, 0, 0
         
         # Handle missing values
         if self.config.handle_missing_values:
@@ -275,31 +361,26 @@ class TabularProcessor:
             df = self.handle_missing_values(df)
             missing_after = int(df.isnull().sum().sum())
             missing_filled = max(0, missing_before - missing_after)
-        else:
-            missing_filled = 0
         
+        # Encode categorical variables
+        if self.config.encoding_strategy != "none":
+            df, encoded_cols = self.encode_categorical(df)
+
         # Normalize if requested
         if self.config.normalize_data:
             numeric_cols = df.select_dtypes(include=[np.number]).columns
             normalized_cols = len(numeric_cols)
             df = self.normalize_data(df)
-        else:
-            normalized_cols = 0
         
         # Optional outlier removal
         if self.config.drop_outliers:
             df, outliers_removed = self.remove_outliers(df, self.config.outlier_threshold)
-        else:
-            outliers_removed = 0
         
         # Remove duplicates again after cleaning
         if self.config.second_duplicate_removal and self.config.remove_duplicates:
             before2 = len(df)
             df = self.remove_duplicates(df)
             second_dupe_removed = before2 - len(df)
-        else:
-            first_dupe_removed = 0
-            second_dupe_removed = 0
         
         # Save processed data (final)
         output_path_obj = Path(output_path)
@@ -313,18 +394,37 @@ class TabularProcessor:
             df.to_json(output_path, orient="records")
         logger.info(f"Saved processed data to: {output_path}")
         
+        # Generate detailed report
+        report_data = {
+            "changes": {
+                "rows_removed": (original_count - len(df)),
+                "duplicates_removed": first_dupe_removed + second_dupe_removed,
+                "missing_filled": missing_filled,
+                "outliers_removed": outliers_removed,
+                "invalid_labels_dropped": invalid_label_rows,
+                "text_cells_cleaned": text_changes,
+                "dates_parsed": dates_parsed,
+                "encoded_cols": encoded_cols
+            },
+            "columns": self._generate_column_stats(df)
+        }
+
         # Calculate and return quality metrics
-        metrics = self.calculate_quality_metrics(df, original_count)
+        metrics = self.calculate_quality_metrics(df, original_count, report_data)
         logger.info(f"Quality score: {metrics.quality_score}")
         
         summary = []
         if cleaned_cols > 0:
             summary.append(f"Cleaned text in {cleaned_cols} columns, {text_changes} cells changed")
+        if dates_parsed > 0:
+            summary.append(f"Parsed {dates_parsed} date columns")
+        if encoded_cols > 0:
+            summary.append(f"Encoded categorical columns (strategy: {self.config.encoding_strategy})")
         if label_col:
             summary.append(f"Normalized {labels_normalized} label values in '{label_col}'")
             if invalid_label_rows > 0:
                 summary.append(f"Dropped {invalid_label_rows} rows with invalid labels")
-        if self.config.handle_missing_values:
+        if self.config.handle_missing_values and missing_filled > 0:
             summary.append(f"Filled {missing_filled} missing values (strategy: {self.config.missing_value_strategy})")
         if normalized_cols > 0:
             summary.append(f"Normalized {normalized_cols} numeric columns to 0-1")

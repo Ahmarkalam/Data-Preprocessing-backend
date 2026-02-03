@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import Dashboard from './pages/Dashboard';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
+import TrialPage from './pages/TrialPage';
 import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Analytics from './pages/Analytics';
+import Settings from './pages/Settings';
+import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
-import apiClient from './api/client';
-import { Loader2 } from 'lucide-react';
 import { ToastProvider } from './components/Toast';
 
 class ErrorBoundary extends React.Component {
@@ -15,7 +19,6 @@ class ErrorBoundary extends React.Component {
     return { hasError: true, error };
   }
   componentDidCatch(error, info) {
-    // Log error for debugging
     console.error('UI Error:', error, info);
   }
   render() {
@@ -24,7 +27,7 @@ class ErrorBoundary extends React.Component {
         <div className="min-h-screen flex items-center justify-center bg-slate-50">
           <div className="bg-white rounded-xl shadow p-6 border border-slate-200 max-w-md text-center">
             <h2 className="text-lg font-bold text-slate-900 mb-2">Something went wrong</h2>
-            <p className="text-slate-500 text-sm mb-4">Please refresh the page. If the issue persists, contact support.</p>
+            <p className="text-slate-500 text-sm mb-4">Please refresh the page.</p>
             <button
               className="btn-primary w-full"
               onClick={() => this.setState({ hasError: false, error: null })}
@@ -39,68 +42,45 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-function AppContent() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    const key = localStorage.getItem('data_prep_api_key');
-    if (!key) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      await apiClient.get('/clients/me');
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error("Auth check failed:", error);
-      localStorage.removeItem('data_prep_api_key');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLoginSuccess = () => {
-    setIsAuthenticated(true);
-  };
-
+function App() {
   const handleLogout = () => {
     localStorage.removeItem('data_prep_api_key');
-    setIsAuthenticated(false);
+    window.location.href = '/';
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 size={40} className="text-indigo-600 animate-spin" />
-          <p className="text-slate-500 font-medium">Loading DataPrep AI...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
-  }
-
-  return (
-    <Layout onLogout={handleLogout}>
-      <Dashboard />
-    </Layout>
-  );
-}
-
-function App() {
   return (
     <ErrorBoundary>
       <ToastProvider>
-        <AppContent />
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/try" element={<TrialPage />} />
+
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={
+                <Layout onLogout={handleLogout}>
+                  <Dashboard />
+                </Layout>
+              } />
+              <Route path="/analytics" element={
+                <Layout onLogout={handleLogout}>
+                  <Analytics />
+                </Layout>
+              } />
+              <Route path="/settings" element={
+                <Layout onLogout={handleLogout}>
+                  <Settings />
+                </Layout>
+              } />
+            </Route>
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
       </ToastProvider>
     </ErrorBoundary>
   );

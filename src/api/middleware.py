@@ -8,8 +8,11 @@ from datetime import datetime, timedelta
 from typing import Dict, Tuple
 from collections import defaultdict
 import os
+import json
 
 from src.utils.logger import get_logger
+from src.database.connection import get_db_session
+from src.database.crud.client_crud import get_client_by_api_key
 
 logger = get_logger("middleware")
 
@@ -40,14 +43,36 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         api_key = request.headers.get("X-API-Key")
         
         if api_key:
-            # Check rate limit
-            if not self._check_rate_limit(api_key):
+            limit_per_hour = 100
+            try:
+                db = get_db_session()
+                client = get_client_by_api_key(db, api_key)
+                if client:
+                    limit_per_hour = self._get_rate_limit_for_plan(client.plan_type)
+            except Exception as e:
+                logger.error(f"Rate limit plan lookup failed: {e}")
+            finally:
+                try:
+                    db.close()
+                except Exception:
+                    pass
+
+            allowed = self._check_rate_limit(api_key, limit_per_hour=limit_per_hour)
+            if not allowed:
                 logger.warning(f"Rate limit exceeded for API key: {api_key[:10]}...")
+                now = datetime.now()
+                count, reset_time = _rate_limit_store[api_key]
+                remaining = max(int((reset_time - now).total_seconds()), 0)
+                body = json.dumps({
+                    "detail": "Rate limit exceeded. Please try again later.",
+                    "retry_after_seconds": remaining,
+                    "reset_at": reset_time.isoformat()
+                })
                 return Response(
-                    content='{"detail": "Rate limit exceeded. Please try again later."}',
+                    content=body,
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                     media_type="application/json",
-                    headers={"Retry-After": "3600"}  # Retry after 1 hour
+                    headers={"Retry-After": str(remaining)}
                 )
 
         response = await call_next(request)

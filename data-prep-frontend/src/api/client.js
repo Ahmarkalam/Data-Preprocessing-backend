@@ -7,6 +7,7 @@ const apiClient = axios.create({
 
 // Automatically add the API Key to every request
 apiClient.interceptors.request.use((config) => {
+  config.withCredentials = true;
   const apiKey = localStorage.getItem('data_prep_api_key');
   if (apiKey) {
     config.headers['X-API-Key'] = apiKey;

@@ -5,7 +5,8 @@ import FileUpload from '../components/FileUpload';
 import JobTable from '../components/JobTable';
 import CreateJobModal from '../components/CreateJobModal';
 import apiClient from '../api/client';
-import { useToast } from '../components/Toast';
+import { useToast } from '../components/useToast';
+import { useCallback } from 'react';
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,7 +15,7 @@ const Dashboard = () => {
   const [clientStats, setClientStats] = useState(null);
   const { addToast } = useToast();
 
-  const fetchClientStats = async () => {
+  const fetchClientStats = useCallback(async () => {
     try {
       // Use the newly created /clients/me endpoint for real user data
       const response = await apiClient.get('/clients/me');
@@ -23,11 +24,13 @@ const Dashboard = () => {
       console.error("Failed to fetch client stats:", error);
       addToast("Failed to fetch client statistics", 'error');
     }
-  };
+  }, [addToast]);
 
   useEffect(() => {
-    fetchClientStats();
-  }, [refreshTrigger]);
+    (async () => {
+      await fetchClientStats();
+    })();
+  }, [refreshTrigger, fetchClientStats]);
 
   const handleUploadFinished = (response) => {
     if (response && response.file_path) {
@@ -61,8 +64,8 @@ const Dashboard = () => {
           icon={Activity} 
         />
          <StatsCard 
-          title="Client ID" 
-          value={clientStats ? clientStats.id : '...'} 
+          title="User" 
+          value={clientStats ? clientStats.name : '...'} 
           change="Connected" 
           icon={FileText} 
         />
@@ -90,7 +93,10 @@ const Dashboard = () => {
         <div className="space-y-6">
           <section>
             <h2 className="text-lg font-bold text-slate-900 mb-4">Quick Action</h2>
-            <FileUpload onUploadSuccess={handleUploadFinished} />
+            <FileUpload 
+              onUploadSuccess={handleUploadFinished} 
+              maxSizeMB={clientStats?.plan_type === 'guest' ? 5 : 50}
+            />
           </section>
 
           <div className="card p-6 bg-gradient-to-br from-indigo-600 to-violet-700 text-white border-none">

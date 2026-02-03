@@ -1,12 +1,12 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
-const StatsCard = ({ title, value, change, icon: Icon, trend = 'up' }) => {
+const StatsCard = ({ title, value, change, icon, trend = 'up' }) => {
   return (
     <div className="card p-6 hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
-          <Icon size={24} />
+          {React.createElement(icon, { size: 24 })}
         </div>
         {change && (
           <div className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${

@@ -1,5 +1,5 @@
 from src.database.connection import get_db, get_db_session, init_db, drop_db
-from src.database.models import Client, Job, QualityMetric, UsageLog, APIKey
+from src.database.models import Client, Job, QualityMetric, UsageLog, APIKey, AccessToken
 
 __all__ = [
     'get_db',
@@ -10,5 +10,6 @@ __all__ = [
     'Job',
     'QualityMetric',
     'UsageLog',
-    'APIKey'
+    'APIKey',
+    'AccessToken'
 ]

@@ -26,6 +26,7 @@ class QualityMetrics(BaseModel):
     duplicate_percent: float
     quality_score: float
     issues: List[str] = []
+    report: Dict[str, Any] = {}
     
     @validator('quality_score')
     def validate_quality_score(cls, v):
@@ -45,6 +46,7 @@ class ProcessingJob(BaseModel):
     completed_at: Optional[datetime] = None
     error_message: Optional[str] = None
     quality_metrics: Optional[QualityMetrics] = None
+    config: Dict[str, Any] = {}
     metadata: Dict[str, Any] = {}
     
     class Config:
@@ -69,4 +71,7 @@ class ProcessingConfig(BaseModel):
     second_duplicate_removal: bool = True
     drop_outliers: bool = False
     outlier_threshold: float = 3.0
+    # New Advanced Options
+    parse_dates: bool = False
+    encoding_strategy: str = "none"  # none, onehot, label
     custom_rules: Dict[str, Any] = {}

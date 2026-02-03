@@ -1,7 +1,15 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, LogOut, Settings, BarChart3, Database } from 'lucide-react';
 
 const Layout = ({ children, onLogout }) => {
+  const navLinkClass = ({ isActive }) => 
+    `flex items-center gap-3 w-full p-3 rounded-lg transition-all ${
+      isActive 
+        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' 
+        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+    }`;
+
   return (
     <div className="flex min-h-screen bg-slate-50">
       {/* Sidebar */}
@@ -18,20 +26,20 @@ const Layout = ({ children, onLogout }) => {
         <nav className="flex-1 p-4 space-y-2">
           <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">Menu</div>
           
-          <button className="flex items-center gap-3 w-full p-3 bg-indigo-600 text-white rounded-lg shadow-lg shadow-indigo-900/20 transition-all">
+          <NavLink to="/dashboard" className={navLinkClass}>
             <LayoutDashboard size={20} /> 
             <span className="font-medium">Dashboard</span>
-          </button>
+          </NavLink>
           
-          <button className="flex items-center gap-3 w-full p-3 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-all">
+          <NavLink to="/analytics" className={navLinkClass}>
             <BarChart3 size={20} /> 
             <span className="font-medium">Analytics</span>
-          </button>
+          </NavLink>
 
-          <button className="flex items-center gap-3 w-full p-3 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-all">
+          <NavLink to="/settings" className={navLinkClass}>
             <Settings size={20} /> 
             <span className="font-medium">Settings</span>
-          </button>
+          </NavLink>
         </nav>
         
         <div className="p-4 border-t border-slate-800">

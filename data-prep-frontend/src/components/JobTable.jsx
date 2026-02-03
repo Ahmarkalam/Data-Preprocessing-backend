@@ -1,10 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
 import apiClient from '../api/client';
-import { RefreshCw, Download, FileText, CheckCircle2, Play, Clock, AlertCircle } from 'lucide-react';
+import { RefreshCw, Download, FileText, CheckCircle2, Play, Clock, AlertCircle, Eye, MessageSquare, Settings } from 'lucide-react';
+import BeforeAfterPreview from './BeforeAfterPreview';
+import DataChatModal from './DataChatModal';
+import ViewConfigModal from './ViewConfigModal';
+import ViewReportModal from './ViewReportModal';
 
 const JobTable = () => {
+  const [configJob, setConfigJob] = useState(null);
+  const [reportJob, setReportJob] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [previewJobId, setPreviewJobId] = useState(null);
+  const [chatJobId, setChatJobId] = useState(null);
   const pollingInterval = useRef(null);
 
   const fetchJobs = async (showLoading = true) => {
@@ -25,7 +33,7 @@ const JobTable = () => {
 
   const runJobManually = async (jobId) => {
     try { await apiClient.post(`/jobs/${jobId}/execute`); fetchJobs(false); }
-    catch (e) { alert("Execution failed"); }
+    catch { alert("Execution failed"); }
   };
 
   const downloadJobResult = async (jobId, fileName) => {
@@ -148,13 +156,43 @@ const JobTable = () => {
                         </button>
                       )}
                       {norm(job.status) === 'COMPLETED' && (
-                        <button 
-                          onClick={() => downloadJobResult(job.job_id, getFileName(job))} 
-                          className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                          title="Download Result"
-                        >
-                          <Download size={18}/>
-                        </button>
+                        <>
+                          <button 
+                            onClick={() => setChatJobId(job.job_id)} 
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                            title="Chat with Data"
+                          >
+                            <MessageSquare size={18}/>
+                          </button>
+                          <button 
+                            onClick={() => setPreviewJobId(job.job_id)} 
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                            title="Preview Data"
+                          >
+                            <Eye size={18}/>
+                          </button>
+                          <button 
+                            onClick={() => setReportJob(job)} 
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                            title="View Quality Report"
+                          >
+                            <FileText size={18}/>
+                          </button>
+                          <button 
+                            onClick={() => setConfigJob(job)} 
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                            title="View Configuration"
+                          >
+                            <Settings size={18}/>
+                          </button>
+                          <button 
+                            onClick={() => downloadJobResult(job.job_id, getFileName(job))} 
+                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                            title="Download Result"
+                          >
+                            <Download size={18}/>
+                          </button>
+                        </>
                       )}
                     </div>
                   </td>
@@ -164,6 +202,30 @@ const JobTable = () => {
           </tbody>
         </table>
       </div>
+
+      <BeforeAfterPreview 
+        isOpen={!!previewJobId} 
+        onClose={() => setPreviewJobId(null)} 
+        jobId={previewJobId} 
+      />
+      
+      <DataChatModal
+        isOpen={!!chatJobId}
+        onClose={() => setChatJobId(null)}
+        jobId={chatJobId}
+      />
+
+      <ViewConfigModal 
+        isOpen={!!configJob} 
+        onClose={() => setConfigJob(null)} 
+        config={configJob?.config} 
+      />
+
+      <ViewReportModal
+        isOpen={!!reportJob}
+        onClose={() => setReportJob(null)}
+        job={reportJob}
+      />
     </div>
   );
 };

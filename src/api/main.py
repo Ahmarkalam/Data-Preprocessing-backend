@@ -10,7 +10,7 @@ from config.settings import settings
 from src.database import init_db
 from src.api.middleware import RateLimitMiddleware, get_allowed_origins
 
-from src.api.routes import upload, jobs, clients
+from src.api.routes import upload, jobs, clients, auth
 
 logger = get_logger("api")
 
@@ -48,6 +48,7 @@ else:
         allow_headers=["*"],
     )
 
+app.include_router(auth.router)
 app.include_router(clients.router)
 app.include_router(upload.router)
 app.include_router(jobs.router)

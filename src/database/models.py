@@ -34,9 +34,10 @@ class Client(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Metadata
-    plan_type = Column(String, default="free")  # free, basic, premium
+    plan_type = Column(String, default="free")  # free, basic, premium, guest
     monthly_quota_mb = Column(Integer, default=1000)  # MB per month
     used_quota_mb = Column(Float, default=0.0)
+    expires_at = Column(DateTime, nullable=True)  # For guest accounts
     
     # Relationships
     jobs = relationship("Job", back_populates="client", cascade="all, delete-orphan")
@@ -161,3 +162,13 @@ class APIKey(Base):
     
     def __repr__(self):
         return f"<APIKey(client_id={self.client_id}, name={self.name})>"
+
+class AccessToken(Base):
+    __tablename__ = "access_tokens"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    token = Column(String, unique=True, nullable=False)
+    email = Column(String, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    used_at = Column(DateTime, nullable=True)

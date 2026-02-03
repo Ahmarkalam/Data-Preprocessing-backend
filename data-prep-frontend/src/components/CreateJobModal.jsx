@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Settings, Play, X, Sliders, Activity } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings, Play, X, Sliders, Activity, Sparkles } from 'lucide-react';
 import apiClient from '../api/client';
 
 const CreateJobModal = ({ isOpen, onClose, inputPath, onJobCreated }) => {
@@ -18,9 +18,42 @@ const CreateJobModal = ({ isOpen, onClose, inputPath, onJobCreated }) => {
     label_column: '',
     second_duplicate_removal: true,
     drop_outliers: false,
-    outlier_threshold: 3.0
+    outlier_threshold: 3.0,
+    parse_dates: false,
+    encoding_strategy: 'none'
   });
   const [loading, setLoading] = useState(false);
+  const [analysis, setAnalysis] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+
+  useEffect(() => {
+    if (inputPath && isOpen) {
+      runAnalysis();
+    }
+  }, [inputPath, isOpen]);
+
+  const runAnalysis = async () => {
+    setAnalyzing(true);
+    setAnalysis(null);
+    try {
+      const response = await apiClient.post('/jobs/analyze', null, {
+        params: { input_path: inputPath }
+      });
+      setAnalysis(response.data);
+    } catch (error) {
+      console.error("Analysis failed:", error);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const applySuggestions = () => {
+    if (!analysis?.suggestions) return;
+    setConfig(prev => ({
+      ...prev,
+      ...analysis.suggestions
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,7 +80,9 @@ const CreateJobModal = ({ isOpen, onClose, inputPath, onJobCreated }) => {
               second_duplicate_removal: config.second_duplicate_removal,
               drop_outliers: config.drop_outliers,
               outlier_threshold: config.outlier_threshold,
-          auto_execute: true 
+              parse_dates: config.parse_dates,
+              encoding_strategy: config.encoding_strategy,
+          auto_execute: true  
         }
       });
       onJobCreated(response.data);
@@ -82,6 +117,58 @@ const CreateJobModal = ({ isOpen, onClose, inputPath, onJobCreated }) => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6 flex-1 overflow-y-auto min-h-0">
           
+          {/* AI Analysis Section */}
+          {(analyzing || analysis) && (
+            <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100 animate-in fade-in slide-in-from-top-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-white rounded-lg border border-indigo-100 shadow-sm text-indigo-600">
+                  <Sparkles size={18} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-sm font-bold text-indigo-900 mb-1">AI Dataset Analysis</h3>
+                    {analysis && (
+                        <span className="text-[10px] font-medium px-2 py-0.5 bg-white rounded-full border border-indigo-100 text-indigo-600">
+                            {analysis.total_rows} rows • {analysis.total_columns} cols
+                        </span>
+                    )}
+                  </div>
+                  
+                  {analyzing ? (
+                    <div className="flex items-center gap-2 text-xs text-indigo-700 mt-2">
+                      <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                      Analyzing your data...
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-2 mb-3 mt-2">
+                        {analysis.warnings.length > 0 ? (
+                          analysis.warnings.map((w, i) => (
+                            <div key={i} className="flex items-start gap-2 text-xs text-indigo-800">
+                              <span className="mt-0.5">•</span> {w}
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-indigo-800">No critical issues detected. Your data looks good!</p>
+                        )}
+                      </div>
+                      
+                      {Object.keys(analysis.suggestions).length > 0 && analysis.warnings.length > 0 && (
+                        <button 
+                          type="button"
+                          onClick={applySuggestions}
+                          className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-colors shadow-sm flex items-center gap-1"
+                        >
+                          <Sparkles size={12} /> Apply Recommendations
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-200 transition-colors">
               <div className="flex items-center gap-3">
@@ -223,6 +310,33 @@ const CreateJobModal = ({ isOpen, onClose, inputPath, onJobCreated }) => {
                   className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
                 />
                 <span className="text-xs text-slate-600">Coerce numeric columns, treat empty as missing</span>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+              <label className="text-sm font-semibold text-slate-800 block">Feature Engineering</label>
+              
+              <div className="flex items-center gap-3">
+                <input 
+                  type="checkbox" 
+                  checked={config.parse_dates} 
+                  onChange={(e) => setConfig({...config, parse_dates: e.target.checked})}
+                  className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                />
+                <span className="text-xs text-slate-600">Auto-parse Dates</span>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                 <span className="text-xs text-slate-600 font-medium">Categorical Encoding</span>
+                 <select
+                  value={config.encoding_strategy}
+                  onChange={(e) => setConfig({...config, encoding_strategy: e.target.value})}
+                  className="text-sm border border-slate-300 rounded-lg px-2 py-1 bg-white"
+                >
+                  <option value="none">None</option>
+                  <option value="onehot">One-Hot Encoding</option>
+                  <option value="label">Label Encoding</option>
+                </select>
               </div>
             </div>
 

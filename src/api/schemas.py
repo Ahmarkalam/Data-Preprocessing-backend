@@ -66,6 +66,7 @@ class JobDetailResponse(BaseModel):
     completed_at: Optional[datetime] = None
     quality_metrics: Optional[QualityMetricsResponse] = None
     error_message: Optional[str] = None
+    config: Optional[Dict[str, Any]] = None
 
 class UploadResponse(BaseModel):
     """Response model for file upload"""

@@ -43,6 +43,10 @@ class Settings:
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
     LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     
+    # Auth/session
+    SESSION_SECRET = os.getenv('SESSION_SECRET', 'dev-change-me')
+    FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+    
     @classmethod
     def create_directories(cls):
         """Create all necessary directories"""
