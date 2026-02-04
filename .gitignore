@@ -85,7 +85,6 @@ htmlcov/
 .ipynb_checkpoints
 
 # pyenv
-.python-version
 
 # OS
 .DS_Store
