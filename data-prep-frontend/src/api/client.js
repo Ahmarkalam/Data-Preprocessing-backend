@@ -1,8 +1,12 @@
 
 import axios from 'axios';
 
+const apiBase =
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) ||
+  'http://localhost:8000';
+
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: apiBase,
 });
 
 // Automatically add the API Key to every request

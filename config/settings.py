@@ -37,7 +37,10 @@ class Settings:
     AWS_BUCKET_NAME = os.getenv('AWS_BUCKET_NAME', 'data-preprocessing-bucket')
     
     # Database
-    DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./preprocessing.db')
+    _raw_db_url = os.getenv('DATABASE_URL', 'sqlite:///./preprocessing.db')
+    if _raw_db_url.startswith('postgres://'):
+        _raw_db_url = _raw_db_url.replace('postgres://', 'postgresql://', 1)
+    DATABASE_URL = _raw_db_url
     
     # Logging
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
