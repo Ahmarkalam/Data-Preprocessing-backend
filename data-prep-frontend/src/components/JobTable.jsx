@@ -107,7 +107,7 @@ const JobTable = () => {
         </button>
       </div>
       
-      <div className="overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
@@ -118,89 +118,162 @@ const JobTable = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
-            {jobs.length === 0 && !loading ? (
-              <tr>
-                <td colSpan="4" className="px-6 py-12 text-center text-slate-500">
-                  <FileText size={48} className="mx-auto text-slate-200 mb-4" />
-                  <p>No jobs found. Upload a file to get started.</p>
+            {jobs.length > 0 && jobs.map(job => (
+              <tr key={job.job_id} className="hover:bg-slate-50 transition-colors group">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                      <FileText size={18} />
+                    </div>
+                    <span className="font-medium text-slate-700 text-sm">
+                      {getFileName(job)}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  {getStatusBadge(norm(job.status))}
+                </td>
+                <td className="px-6 py-4 text-sm text-slate-500">
+                  {new Date(job.created_at).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    {norm(job.status) === 'PENDING' && (
+                      <button 
+                        onClick={() => runJobManually(job.job_id)} 
+                        className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                        title="Run Job"
+                      >
+                        <Play size={16}/>
+                      </button>
+                    )}
+                    {norm(job.status) === 'COMPLETED' && (
+                      <>
+                        <button 
+                          onClick={() => setChatJobId(job.job_id)} 
+                          className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                          title="Chat with Data"
+                        >
+                          <MessageSquare size={16}/>
+                        </button>
+                        <button 
+                          onClick={() => setPreviewJobId(job.job_id)} 
+                          className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                          title="Preview Data"
+                        >
+                          <Eye size={16}/>
+                        </button>
+                        <button 
+                          onClick={() => setReportJob(job)} 
+                          className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                          title="View Quality Report"
+                        >
+                          <FileText size={16}/>
+                        </button>
+                        <button 
+                          onClick={() => setConfigJob(job)} 
+                          className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                          title="View Configuration"
+                        >
+                          <Settings size={16}/>
+                        </button>
+                        <button 
+                          onClick={() => downloadJobResult(job.job_id, getFileName(job))} 
+                          className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                          title="Download Result"
+                        >
+                          <Download size={16}/>
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </td>
               </tr>
-            ) : (
-              jobs.map(job => (
-                <tr key={job.job_id} className="hover:bg-slate-50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-                        <FileText size={18} />
-                      </div>
-                      <span className="font-medium text-slate-700 text-sm">
-                        {getFileName(job)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    {getStatusBadge(norm(job.status))}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-500">
-                    {new Date(job.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {norm(job.status) === 'PENDING' && (
-                        <button 
-                          onClick={() => runJobManually(job.job_id)} 
-                          className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg tooltip"
-                          title="Run Job"
-                        >
-                          <Play size={18}/>
-                        </button>
-                      )}
-                      {norm(job.status) === 'COMPLETED' && (
-                        <>
-                          <button 
-                            onClick={() => setChatJobId(job.job_id)} 
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                            title="Chat with Data"
-                          >
-                            <MessageSquare size={18}/>
-                          </button>
-                          <button 
-                            onClick={() => setPreviewJobId(job.job_id)} 
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                            title="Preview Data"
-                          >
-                            <Eye size={18}/>
-                          </button>
-                          <button 
-                            onClick={() => setReportJob(job)} 
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                            title="View Quality Report"
-                          >
-                            <FileText size={18}/>
-                          </button>
-                          <button 
-                            onClick={() => setConfigJob(job)} 
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                            title="View Configuration"
-                          >
-                            <Settings size={18}/>
-                          </button>
-                          <button 
-                            onClick={() => downloadJobResult(job.job_id, getFileName(job))} 
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                            title="Download Result"
-                          >
-                            <Download size={18}/>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
+        {jobs.length === 0 && !loading && (
+          <div className="px-6 py-12 text-center text-slate-500">
+            <FileText size={48} className="mx-auto text-slate-200 mb-4" />
+            <p>No jobs found. Upload a file to get started.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile View */}
+      <div className="md:hidden px-4 py-2 space-y-4">
+        {jobs.length > 0 && jobs.map(job => (
+          <div key={job.job_id} className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                  <FileText size={18} />
+                </div>
+                <div>
+                  <div className="font-medium text-slate-700 text-sm">{getFileName(job)}</div>
+                  <div className="text-xs text-slate-500">{new Date(job.created_at).toLocaleDateString()}</div>
+                </div>
+              </div>
+              {getStatusBadge(norm(job.status))}
+            </div>
+            <div className="flex items-center justify-end gap-1 border-t border-slate-100 pt-3 mt-3">
+              {norm(job.status) === 'PENDING' && (
+                <button 
+                  onClick={() => runJobManually(job.job_id)} 
+                  className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                  title="Run Job"
+                >
+                  <Play size={16}/>
+                </button>
+              )}
+              {norm(job.status) === 'COMPLETED' && (
+                <>
+                  <button 
+                    onClick={() => setChatJobId(job.job_id)} 
+                    className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                    title="Chat with Data"
+                  >
+                    <MessageSquare size={16}/>
+                  </button>
+                  <button 
+                    onClick={() => setPreviewJobId(job.job_id)} 
+                    className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                    title="Preview Data"
+                  >
+                    <Eye size={16}/>
+                  </button>
+                  <button 
+                    onClick={() => setReportJob(job)} 
+                    className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                    title="View Quality Report"
+                  >
+                    <FileText size={16}/>
+                  </button>
+                  <button 
+                    onClick={() => setConfigJob(job)} 
+                    className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                    title="View Configuration"
+                  >
+                    <Settings size={16}/>
+                  </button>
+                  <button 
+                    onClick={() => downloadJobResult(job.job_id, getFileName(job))} 
+                    className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                    title="Download Result"
+                  >
+                    <Download size={16}/>
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+        {jobs.length === 0 && !loading && (
+          <div className="px-6 py-12 text-center text-slate-500">
+            <FileText size={48} className="mx-auto text-slate-200 mb-4" />
+            <p>No jobs found. Upload a file to get started.</p>
+          </div>
+        )}
       </div>
 
       <BeforeAfterPreview 
