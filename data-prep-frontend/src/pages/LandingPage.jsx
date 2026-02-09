@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Zap, Shield, FileText, BarChart, Database, KeyRound } from 'lucide-react';
+import { ArrowRight, CheckCircle, Zap, Shield, FileText, BarChart, Database, KeyRound, Menu, X } from 'lucide-react';
 
 const LandingPage = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900">
-      <nav className="sticky top-0 z-50 bg-white border-b border-slate-200">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
@@ -17,7 +19,7 @@ const LandingPage = () => {
               <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">How it Works</a>
               <a href="#pricing" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Pricing</a>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
               <Link to="/login" className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors">
                 Sign In
               </Link>
@@ -25,8 +27,34 @@ const LandingPage = () => {
                 Start Free Trial
               </Link>
             </div>
+            <div className="md:hidden flex items-center">
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="inline-flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-slate-500">
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
           </div>
         </div>
+        {isMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              <a href="#features" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">Features</a>
+              <a href="#how-it-works" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">How it Works</a>
+              <a href="#pricing" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">Pricing</a>
+            </div>
+            <div className="pt-4 pb-3 border-t border-slate-200">
+              <div className="flex items-center px-5">
+                <div className="flex-shrink-0">
+                  <Link to="/login" className="text-base font-medium text-slate-700 hover:text-slate-900">
+                    Sign In
+                  </Link>
+                </div>
+                <Link to="/try" className="ml-auto bg-slate-900 text-white block px-4 py-2 rounded-md text-base font-medium hover:bg-slate-800">
+                  Start Free Trial
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       <section className="relative pt-16 pb-20">
@@ -34,7 +62,7 @@ const LandingPage = () => {
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-4">
             Clean data. Clear results.
           </h1>
-          <p className="mt-2 text-lg text-slate-600 max-w-2xl mx-auto mb-8">
+          <p className="mt-2 text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-8">
             A fast, reliable preprocessing platform to clean, validate, and analyze datasets with one click.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
@@ -106,11 +134,11 @@ const LandingPage = () => {
                       </table>
                     </div>
                   </div>
-                  <div className="mt-4 flex items-center gap-2">
-                    <Link to="/try" className="px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-colors flex items-center gap-2">
+                  <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <Link to="/try" className="px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
                       Try This Preview <ArrowRight size={14} />
                     </Link>
-                    <Link to="/login" className="px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors">
+                    <Link to="/login" className="px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors flex items-center justify-center">
                       Get API Key
                     </Link>
                   </div>
@@ -119,7 +147,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="mt-10 flex justify-center">
-            <div className="flex items-center gap-8 opacity-80">
+            <div className="flex flex-wrap justify-center items-center gap-8 opacity-80">
               <div className="h-8 w-24 bg-slate-200 rounded"></div>
               <div className="h-8 w-24 bg-slate-200 rounded"></div>
               <div className="h-8 w-24 bg-slate-200 rounded"></div>
@@ -132,10 +160,10 @@ const LandingPage = () => {
       <section id="features" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900">Everything you need to prep data</h2>
-            <p className="mt-4 text-lg text-slate-600">Built for speed, accuracy, and simplicity.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">Everything you need to prep data</h2>
+            <p className="mt-4 text-lg md:text-xl text-slate-600">Built for speed, accuracy, and simplicity.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
                 icon: <Zap className="w-6 h-6 text-amber-500" />,
@@ -183,8 +211,8 @@ const LandingPage = () => {
       <section id="how-it-works" className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900">How it works</h2>
-            <p className="mt-4 text-lg text-slate-600">From upload to clean output in minutes.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">How it works</h2>
+            <p className="mt-4 text-lg md:text-xl text-slate-600">From upload to clean output in minutes.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -205,12 +233,12 @@ const LandingPage = () => {
       <section id="pricing" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900">Simple, transparent pricing</h2>
-            <p className="mt-4 text-lg text-slate-600">Start for free, upgrade as you grow.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">Simple, transparent pricing</h2>
+            <p className="mt-4 text-lg md:text-xl text-slate-600">Start for free, upgrade as you grow.</p>
           </div>
           
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 relative overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 relative overflow-hidden flex flex-col">
               <h3 className="text-2xl font-bold text-slate-900 mb-2">Free Trial</h3>
               <div className="text-4xl font-extrabold text-slate-900 mb-6">$0</div>
               <p className="text-slate-600 mb-8">Perfect for testing and small ad-hoc tasks.</p>
@@ -228,10 +256,12 @@ const LandingPage = () => {
                   <CheckCircle size={20} className="text-green-500" /> Basic Preprocessing
                 </li>
               </ul>
-              <Link to="/try" className="btn-primary w-full block text-center py-3 rounded-lg">Start Free Trial</Link>
+              <div className="mt-auto">
+                <Link to="/try" className="btn-primary w-full block text-center py-3 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors">Start Free Trial</Link>
+              </div>
             </div>
             
-            <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-900 p-8 relative overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-900 p-8 relative overflow-hidden flex flex-col">
               <div className="absolute top-0 right-0 bg-slate-900 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">Developer API</h3>
               <div className="text-4xl font-extrabold text-slate-900 mb-6">Free <span className="text-lg font-normal text-slate-500">/ forever</span></div>
@@ -253,9 +283,11 @@ const LandingPage = () => {
                   <CheckCircle size={20} className="text-indigo-600" /> Advanced Quality Reports
                 </li>
               </ul>
-              <Link to="/login?mode=register" className="block w-full text-center py-3 rounded-lg bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors">
-                Get API Key
-              </Link>
+              <div className="mt-auto">
+                <Link to="/login?mode=register" className="block w-full text-center py-3 rounded-lg bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors">
+                  Get API Key
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -268,11 +300,11 @@ const LandingPage = () => {
               <h3 className="text-2xl font-bold text-slate-900">Ready to clean your data?</h3>
               <p className="text-slate-600 mt-1">Start a free trial or get a forever‑free API key.</p>
             </div>
-            <div className="flex gap-3">
-              <Link to="/try" className="px-5 py-3 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Link to="/try" className="px-5 py-3 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors text-center">
                 Start Free Trial
               </Link>
-              <Link to="/login?mode=register" className="px-5 py-3 rounded-lg border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition-colors">
+              <Link to="/login?mode=register" className="px-5 py-3 rounded-lg border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition-colors text-center">
                 Get API Key
               </Link>
             </div>
@@ -282,8 +314,8 @@ const LandingPage = () => {
 
       <footer className="bg-slate-900 text-slate-400 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
+          <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+            <div className="flex items-center justify-center gap-2 mb-4 md:mb-0">
               <Database className="h-6 w-6 text-white" />
               <span className="text-lg font-bold text-white">DataPrep AI</span>
             </div>
