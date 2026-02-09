@@ -99,12 +99,12 @@ const Dashboard = () => {
             />
           </section>
 
-          <div className="card p-6 bg-gradient-to-br from-indigo-600 to-violet-700 text-white border-none">
+          <div className="card p-6 bg-gradient-to-br from-indigo-600 to-violet-700 text-white border-none mb-4">
             <h3 className="font-bold text-lg mb-2">Pro Tips</h3>
-            <p className="text-indigo-100 text-sm mb-4">
+            <p className="text-indigo-100 text-base mb-4">
               Use Parquet files for 10x faster processing speeds on large datasets.
             </p>
-            <button className="text-xs font-semibold bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-colors">
+            <button className="text-sm font-semibold bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-colors">
               View Documentation
             </button>
           </div>
