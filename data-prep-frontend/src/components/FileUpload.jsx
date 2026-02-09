@@ -77,7 +77,7 @@ const FileUpload = ({ onUploadSuccess, maxSizeMB = 50 }) => {
         {!file ? (
           <div 
             {...getRootProps()} 
-            className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 group
+            className={`border-2 border-dashed rounded-xl p-6 sm:p-8 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 group
               ${isDragActive 
                 ? 'border-indigo-500 bg-indigo-50' 
                 : 'border-slate-300 hover:border-indigo-400 hover:bg-slate-50'}`}
