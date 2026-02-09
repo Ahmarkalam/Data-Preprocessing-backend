@@ -35,7 +35,7 @@ const LandingPage = () => {
           </div>
         </div>
         {isMenuOpen && (
-          <div className="md:hidden">
+          <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg transition-transform transform duration-300 ease-in-out">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
               <a href="#features" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">Features</a>
               <a href="#how-it-works" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">How it Works</a>
