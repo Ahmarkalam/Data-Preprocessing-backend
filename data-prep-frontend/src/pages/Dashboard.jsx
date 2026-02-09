@@ -49,7 +49,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-8">
       {/* Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard 
           title="Monthly Quota" 
           value={clientStats ? `${clientStats.used_quota_mb.toFixed(1)} / ${clientStats.monthly_quota_mb} MB` : 'Loading...'} 

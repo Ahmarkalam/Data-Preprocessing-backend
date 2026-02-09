@@ -169,77 +169,77 @@ const CreateJobModal = ({ isOpen, onClose, inputPath, onJobCreated }) => {
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-200 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg border border-slate-200 shadow-sm">
-                  <Sliders size={18} className="text-indigo-600" />
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-sm">
+                  <Sliders size={20} className="text-indigo-600" />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-slate-800 block">Remove Duplicates</label>
-                  <p className="text-xs text-slate-500">Identify and remove identical rows</p>
+                  <label className="text-base font-semibold text-slate-800 block">Remove Duplicates</label>
+                  <p className="text-base text-slate-500">Identify and remove identical rows</p>
                 </div>
               </div>
               <input 
                 type="checkbox" 
                 checked={config.remove_duplicates} 
                 onChange={(e) => setConfig({...config, remove_duplicates: e.target.checked})} 
-                className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                className="w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
               />
             </div>
 
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-200 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg border border-slate-200 shadow-sm">
-                  <Sliders size={18} className="text-indigo-600" />
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-sm">
+                  <Sliders size={20} className="text-indigo-600" />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-slate-800 block">Remove Duplicates After Cleaning</label>
-                  <p className="text-xs text-slate-500">Run deduplication again post text cleanup</p>
+                  <label className="text-base font-semibold text-slate-800 block">Remove Duplicates After Cleaning</label>
+                  <p className="text-base text-slate-500">Run deduplication again post text cleanup</p>
                 </div>
               </div>
               <input 
                 type="checkbox" 
                 checked={config.second_duplicate_removal} 
                 onChange={(e) => setConfig({...config, second_duplicate_removal: e.target.checked})} 
-                className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                className="w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
               />
             </div>
 
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-200 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg border border-slate-200 shadow-sm">
-                  <Activity size={18} className="text-indigo-600" />
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white rounded-lg border border-slate-200 shadow-sm">
+                  <Activity size={20} className="text-indigo-600" />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-slate-800 block">Normalize Data</label>
-                  <p className="text-xs text-slate-500">Scale numeric values between 0 and 1</p>
+                  <label className="text-base font-semibold text-slate-800 block">Normalize Data</label>
+                  <p className="text-base text-slate-500">Scale numeric values between 0 and 1</p>
                 </div>
               </div>
               <input 
                 type="checkbox" 
                 checked={config.normalize_data} 
                 onChange={(e) => setConfig({...config, normalize_data: e.target.checked})} 
-                className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                className="w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
               />
             </div>
 
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <label className="text-sm font-semibold text-slate-800 block mb-2">Handle Missing Values</label>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <label className="text-base font-semibold text-slate-800 block mb-3">Handle Missing Values</label>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                <div className="flex items-center gap-3 mb-3 sm:mb-0">
                   <input 
                     type="checkbox" 
                     checked={config.handle_missing_values} 
                     onChange={(e) => setConfig({...config, handle_missing_values: e.target.checked})}
-                    className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                    className="w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
                   />
-                  <span className="text-xs text-slate-600">Enable</span>
+                  <span className="text-base text-slate-600">Enable</span>
                 </div>
                 <select
                   value={config.missing_value_strategy}
                   onChange={(e) => setConfig({...config, missing_value_strategy: e.target.value})}
-                  className="text-sm border border-slate-300 rounded-lg px-2 py-1 bg-white"
+                  className="text-base border border-slate-300 rounded-lg px-3 py-2 bg-white w-full sm:w-auto"
                 >
                   <option value="mean">Mean</option>
                   <option value="median">Median</option>
@@ -249,89 +249,89 @@ const CreateJobModal = ({ isOpen, onClose, inputPath, onJobCreated }) => {
               </div>
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-              <label className="text-sm font-semibold text-slate-800 block">Text Cleaning</label>
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+              <label className="text-base font-semibold text-slate-800 block">Text Cleaning</label>
               <div className="flex items-center gap-3">
                 <input 
                   type="checkbox" 
                   checked={config.text_cleaning} 
                   onChange={(e) => setConfig({...config, text_cleaning: e.target.checked})}
-                  className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                  className="w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
                 />
-                <span className="text-xs text-slate-600">Enable</span>
+                <span className="text-base text-slate-600">Enable</span>
               </div>
-              <div className="grid grid-cols-2 gap-3 mt-2">
-                <label className="flex items-center gap-2 text-xs text-slate-700">
-                  <input type="checkbox" checked={config.remove_html} onChange={(e)=>setConfig({...config, remove_html: e.target.checked})} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+                <label className="flex items-center gap-3 text-base text-slate-700">
+                  <input type="checkbox" className="w-5 h-5" checked={config.remove_html} onChange={(e)=>setConfig({...config, remove_html: e.target.checked})} />
                   Remove HTML
                 </label>
-                <label className="flex items-center gap-2 text-xs text-slate-700">
-                  <input type="checkbox" checked={config.remove_emojis} onChange={(e)=>setConfig({...config, remove_emojis: e.target.checked})} />
+                <label className="flex items-center gap-3 text-base text-slate-700">
+                  <input type="checkbox" className="w-5 h-5" checked={config.remove_emojis} onChange={(e)=>setConfig({...config, remove_emojis: e.target.checked})} />
                   Remove Emojis
                 </label>
-                <label className="flex items-center gap-2 text-xs text-slate-700">
-                  <input type="checkbox" checked={config.collapse_punctuation} onChange={(e)=>setConfig({...config, collapse_punctuation: e.target.checked})} />
+                <label className="flex items-center gap-3 text-base text-slate-700">
+                  <input type="checkbox" className="w-5 h-5" checked={config.collapse_punctuation} onChange={(e)=>setConfig({...config, collapse_punctuation: e.target.checked})} />
                   Collapse Punctuation
                 </label>
-                <label className="flex items-center gap-2 text-xs text-slate-700">
-                  <input type="checkbox" checked={config.normalize_whitespace} onChange={(e)=>setConfig({...config, normalize_whitespace: e.target.checked})} />
+                <label className="flex items-center gap-3 text-base text-slate-700">
+                  <input type="checkbox" className="w-5 h-5" checked={config.normalize_whitespace} onChange={(e)=>setConfig({...config, normalize_whitespace: e.target.checked})} />
                   Normalize Whitespace
                 </label>
               </div>
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-              <label className="text-sm font-semibold text-slate-800 block">Labels</label>
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+              <label className="text-base font-semibold text-slate-800 block">Labels</label>
               <div className="flex items-center gap-3">
                 <input 
                   type="checkbox" 
                   checked={config.label_normalization} 
                   onChange={(e) => setConfig({...config, label_normalization: e.target.checked})}
-                  className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                  className="w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
                 />
-                <span className="text-xs text-slate-600">Normalize to 0/1</span>
+                <span className="text-base text-slate-600">Normalize to 0/1</span>
               </div>
               <input
                 type="text"
                 value={config.label_column}
                 onChange={(e)=>setConfig({...config, label_column: e.target.value})}
                 placeholder="Label column name (optional)"
-                className="w-full text-sm border border-slate-300 rounded-lg px-2 py-1 bg-white"
+                className="w-full text-base border border-slate-300 rounded-lg px-3 py-2 bg-white"
               />
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-              <label className="text-sm font-semibold text-slate-800 block">Data Types</label>
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+              <label className="text-base font-semibold text-slate-800 block">Data Types</label>
               <div className="flex items-center gap-3">
                 <input 
                   type="checkbox" 
                   checked={config.enforce_data_types} 
                   onChange={(e) => setConfig({...config, enforce_data_types: e.target.checked})}
-                  className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                  className="w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
                 />
-                <span className="text-xs text-slate-600">Coerce numeric columns, treat empty as missing</span>
+                <span className="text-base text-slate-600">Coerce numeric columns, treat empty as missing</span>
               </div>
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-              <label className="text-sm font-semibold text-slate-800 block">Feature Engineering</label>
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+              <label className="text-base font-semibold text-slate-800 block">Feature Engineering</label>
               
               <div className="flex items-center gap-3">
                 <input 
                   type="checkbox" 
                   checked={config.parse_dates} 
                   onChange={(e) => setConfig({...config, parse_dates: e.target.checked})}
-                  className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                  className="w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
                 />
-                <span className="text-xs text-slate-600">Auto-parse Dates</span>
+                <span className="text-base text-slate-600">Auto-parse Dates</span>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-                 <span className="text-xs text-slate-600 font-medium">Categorical Encoding</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-3 border-t border-slate-200">
+                 <span className="text-base text-slate-600 font-medium mb-2 sm:mb-0">Categorical Encoding</span>
                  <select
                   value={config.encoding_strategy}
                   onChange={(e) => setConfig({...config, encoding_strategy: e.target.value})}
-                  className="text-sm border border-slate-300 rounded-lg px-2 py-1 bg-white"
+                  className="text-base border border-slate-300 rounded-lg px-3 py-2 bg-white w-full sm:w-auto"
                 >
                   <option value="none">None</option>
                   <option value="onehot">One-Hot Encoding</option>
@@ -340,17 +340,17 @@ const CreateJobModal = ({ isOpen, onClose, inputPath, onJobCreated }) => {
               </div>
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-              <label className="text-sm font-semibold text-slate-800 block">Outliers</label>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+              <label className="text-base font-semibold text-slate-800 block">Outliers</label>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                <div className="flex items-center gap-3 mb-3 sm:mb-0">
                   <input 
                     type="checkbox" 
                     checked={config.drop_outliers} 
                     onChange={(e) => setConfig({...config, drop_outliers: e.target.checked})}
-                    className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
+                    className="w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300"
                   />
-                  <span className="text-xs text-slate-600">Drop outliers (z-score)</span>
+                  <span className="text-base text-slate-600">Drop outliers (z-score)</span>
                 </div>
                 <input
                   type="number"
@@ -358,7 +358,7 @@ const CreateJobModal = ({ isOpen, onClose, inputPath, onJobCreated }) => {
                   min="1"
                   value={config.outlier_threshold}
                   onChange={(e)=>setConfig({...config, outlier_threshold: parseFloat(e.target.value)})}
-                  className="w-24 text-sm border border-slate-300 rounded-lg px-2 py-1 bg-white"
+                  className="w-full sm:w-28 text-base border border-slate-300 rounded-lg px-3 py-2 bg-white"
                   placeholder="3.0"
                 />
               </div>
