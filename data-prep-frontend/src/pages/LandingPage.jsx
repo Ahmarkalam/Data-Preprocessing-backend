@@ -1,330 +1,237 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Zap, Shield, FileText, BarChart, Database, KeyRound, Menu, X } from 'lucide-react';
+import {
+  ArrowRight,
+  CheckCircle,
+  Zap,
+  Shield,
+  BarChart,
+  Database,
+  KeyRound,
+  Menu,
+  X,
+  Sparkles,
+  WandSparkles,
+  Layers,
+  LineChart,
+} from 'lucide-react';
+
+const features = [
+  {
+    icon: Zap,
+    title: 'High-performance processing',
+    text: 'Run cleaning, validation, and transformation pipelines quickly on large datasets.',
+  },
+  {
+    icon: Shield,
+    title: 'Enterprise-grade data quality',
+    text: 'Detect missing values, duplicates, type mismatches, and schema issues automatically.',
+  },
+  {
+    icon: BarChart,
+    title: 'Operational insights',
+    text: 'Monitor quality trends, job outcomes, and transformation impact in one place.',
+  },
+  {
+    icon: Layers,
+    title: 'Reusable workflow templates',
+    text: 'Standardize data preparation with templates your team can reuse across projects.',
+  },
+];
+
+const steps = [
+  {
+    title: 'Ingest your data',
+    text: 'Upload CSV, JSON, or Parquet files securely with progress tracking and validation checks.',
+  },
+  {
+    title: 'Configure processing',
+    text: 'Apply recommended presets or customize each preprocessing step based on your requirements.',
+  },
+  {
+    title: 'Review and deliver',
+    text: 'Compare results, inspect quality metrics, and export datasets for analytics or production pipelines.',
+  },
+];
 
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900">
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200">
+    <div className="min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden">
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute -top-40 -left-20 h-80 w-80 bg-indigo-500/30 blur-3xl rounded-full" />
+        <div className="absolute top-1/3 -right-16 h-72 w-72 bg-cyan-500/20 blur-3xl rounded-full" />
+        <div className="absolute bottom-0 left-1/4 h-72 w-72 bg-fuchsia-500/20 blur-3xl rounded-full" />
+      </div>
+
+      <nav className="sticky top-0 z-50 bg-slate-950/75 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <Database className="h-7 w-7 text-slate-900" />
-              <span className="text-xl font-bold text-slate-900">DataPrep AI</span>
+              <Database className="h-7 w-7 text-indigo-300" />
+              <span className="text-lg sm:text-xl font-bold text-white">DataPrep AI</span>
             </div>
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Features</a>
-              <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">How it Works</a>
-              <a href="#pricing" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Pricing</a>
+
+            <div className="hidden md:flex items-center gap-8 text-sm">
+              <a href="#features" className="text-slate-300 hover:text-white transition-colors">Capabilities</a>
+              <a href="#how-it-works" className="text-slate-300 hover:text-white transition-colors">Workflow</a>
+              <a href="#pricing" className="text-slate-300 hover:text-white transition-colors">Plans</a>
             </div>
+
             <div className="hidden md:flex items-center gap-3">
-              <Link to="/login" className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors">
+              <Link to="/login" className="text-sm font-medium text-slate-200 hover:text-white transition-colors">
                 Sign In
               </Link>
-              <Link to="/try" className="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-colors">
+              <Link to="/try" className="px-4 py-2 rounded-lg bg-indigo-500 text-white text-sm font-semibold hover:bg-indigo-400 transition-colors">
                 Start Free Trial
               </Link>
             </div>
-            <div className="md:hidden flex items-center">
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="inline-flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-slate-500">
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
+
+            <button
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              className="md:hidden p-2 rounded-lg text-slate-200 hover:bg-white/10"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
+
         {isMenuOpen && (
-          <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg transition-transform transform duration-300 ease-in-out">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <a href="#features" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">Features</a>
-              <a href="#how-it-works" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">How it Works</a>
-              <a href="#pricing" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">Pricing</a>
-            </div>
-            <div className="pt-4 pb-3 border-t border-slate-200">
-              <div className="flex items-center px-5">
-                <div className="flex-shrink-0">
-                  <Link to="/login" className="text-base font-medium text-slate-700 hover:text-slate-900">
-                    Sign In
-                  </Link>
-                </div>
-                <Link to="/try" className="ml-auto bg-slate-900 text-white block px-4 py-2 rounded-md text-base font-medium hover:bg-slate-800">
-                  Start Free Trial
-                </Link>
-              </div>
+          <div className="md:hidden border-t border-white/10 bg-slate-950/95 backdrop-blur-xl px-4 py-4 space-y-2">
+            <a href="#features" className="block py-2 text-slate-300" onClick={() => setIsMenuOpen(false)}>Capabilities</a>
+            <a href="#how-it-works" className="block py-2 text-slate-300" onClick={() => setIsMenuOpen(false)}>Workflow</a>
+            <a href="#pricing" className="block py-2 text-slate-300" onClick={() => setIsMenuOpen(false)}>Plans</a>
+            <div className="pt-2 grid grid-cols-2 gap-2">
+              <Link to="/login" className="text-center px-4 py-2 rounded-lg border border-white/20 text-slate-100">Sign In</Link>
+              <Link to="/try" className="text-center px-4 py-2 rounded-lg bg-indigo-500 text-white">Free Trial</Link>
             </div>
           </div>
         )}
       </nav>
 
-      <section className="relative pt-16 pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-4">
-            Clean data. Clear results.
-          </h1>
-          <p className="mt-2 text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-8">
-            A fast, reliable preprocessing platform to clean, validate, and analyze datasets with one click.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <Link to="/try" className="px-6 py-3 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors w-full sm:w-auto flex items-center justify-center gap-2">
-              Start Free Trial <ArrowRight size={18} />
-            </Link>
-            <Link to="/login" className="px-6 py-3 rounded-lg border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition-colors w-full sm:w-auto flex items-center justify-center gap-2">
-              <KeyRound size={18} /> Get API Key
-            </Link>
-          </div>
-          <div className="mt-12 mx-auto max-w-5xl">
-            <div className="relative bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden">
-              <div className="bg-slate-50 border-b border-slate-200 px-4 py-2 flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                <div className="w-3 h-3 rounded-full bg-green-400"></div>
-              </div>
-              <div className="grid md:grid-cols-3 gap-0">
-                <div className="p-6 bg-slate-50 border-r border-slate-200 space-y-4">
-                  <div className="p-4 bg-white border border-slate-200 rounded-xl">
-                    <div className="text-xs font-semibold text-slate-500 mb-1">Quality Score</div>
-                    <div className="text-2xl font-extrabold text-slate-900">92</div>
-                    <div className="text-xs text-emerald-600 mt-1">+4 since last run</div>
-                  </div>
-                  <div className="p-4 bg-white border border-slate-200 rounded-xl">
-                    <div className="text-xs font-semibold text-slate-500 mb-1">Rows Processed</div>
-                    <div className="text-2xl font-extrabold text-slate-900">24,108</div>
-                    <div className="text-xs text-slate-500 mt-1">CSV • 18 columns</div>
-                  </div>
-                  <div className="p-4 bg-white border border-slate-200 rounded-xl">
-                    <div className="text-xs font-semibold text-slate-500 mb-1">Actions Applied</div>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Deduplicate</span>
-                      <span className="text-xs px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Handle Missing</span>
-                      <span className="text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Normalize</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="md:col-span-2 p-6 bg-white">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-sm font-semibold text-slate-700">Preview</div>
-                    <div className="text-xs text-slate-500">cleaned_sample.csv</div>
-                  </div>
-                  <div className="border border-slate-200 rounded-xl overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full text-left text-xs">
-                        <thead className="bg-slate-50 border-b border-slate-200">
-                          <tr>
-                            {['id','name','email','country','age','joined_at','is_active'].map(h=>(
-                              <th key={h} className="px-3 py-2 font-semibold text-slate-600 border-r border-slate-200">{h}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            ['1','Alice','alice@example.com','US','29','2025-12-01','true'],
-                            ['2','Bob','bob@example.com','UK','31','2025-11-12','true'],
-                            ['3','Carol','carol@example.com','IN','27','2025-10-03','false'],
-                            ['4','Dan','dan@example.com','DE','45','2025-09-21','true'],
-                            ['5','Eve','eve@example.com','FR','36','2025-08-18','true']
-                          ].map((row,i)=>(
-                            <tr key={i} className="hover:bg-slate-50">
-                              {row.map((cell,j)=>(
-                                <td key={j} className="px-3 py-2 border-t border-r border-slate-100">{cell}</td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                    <Link to="/try" className="px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
-                      Try This Preview <ArrowRight size={14} />
-                    </Link>
-                    <Link to="/login" className="px-3 py-2 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors flex items-center justify-center">
-                      Get API Key
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="mt-10 flex justify-center">
-            <div className="flex flex-wrap justify-center items-center gap-8 opacity-80">
-              <div className="h-8 w-24 bg-slate-200 rounded"></div>
-              <div className="h-8 w-24 bg-slate-200 rounded"></div>
-              <div className="h-8 w-24 bg-slate-200 rounded"></div>
-              <div className="h-8 w-24 bg-slate-200 rounded"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="features" className="py-24 bg-white">
+      <section className="relative pt-14 sm:pt-20 pb-16 sm:pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">Everything you need to prep data</h2>
-            <p className="mt-4 text-lg md:text-xl text-slate-600">Built for speed, accuracy, and simplicity.</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Zap className="w-6 h-6 text-amber-500" />,
-                title: "Instant Preprocessing",
-                desc: "Clean messy CSVs automatically. Handle missing values, outliers, and duplicates in one click."
-              },
-              {
-                icon: <BarChart className="w-6 h-6 text-blue-500" />,
-                title: "Deep Analysis",
-                desc: "Get instant distribution stats, correlation matrices, and quality scores for your datasets."
-              },
-              {
-                icon: <Shield className="w-6 h-6 text-green-500" />,
-                title: "Secure & Private",
-                desc: "Your data is encrypted and automatically deleted after processing. Enterprise-grade security standard."
-              },
-              {
-                icon: <FileText className="w-6 h-6 text-indigo-500" />,
-                title: "Smart Reports",
-                desc: "Download detailed PDF quality reports to share with stakeholders or attach to your documentation."
-              },
-              {
-                icon: <Database className="w-6 h-6 text-violet-500" />,
-                title: "Format Agnostic",
-                desc: "Support for CSV, Excel, JSON, and Parquet. Export to any format you need for your ML pipeline."
-              },
-              {
-                icon: <CheckCircle className="w-6 h-6 text-teal-500" />,
-                title: "Job Versioning",
-                desc: "Track every change. Revert to previous versions or compare before/after states instantly."
-              }
-            ].map((feature, i) => (
-              <div key={i} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-lg transition-shadow">
-                <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center shadow-sm mb-4">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">{feature.title}</h3>
-                <p className="text-slate-600">{feature.desc}</p>
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-300/30 bg-indigo-400/10 px-3 py-1 text-xs sm:text-sm text-indigo-200 mb-5">
+                <Sparkles size={14} /> Trusted data operations platform
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                Professional data preprocessing for modern teams.
+              </h1>
+              <p className="mt-5 text-slate-300 text-base sm:text-lg max-w-xl">
+                Improve data quality, reduce manual cleanup, and ship reliable datasets with a polished workflow built for day-to-day production use.
+              </p>
 
-      <section id="how-it-works" className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">How it works</h2>
-            <p className="mt-4 text-lg md:text-xl text-slate-600">From upload to clean output in minutes.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { step: "1", title: "Upload", desc: "Upload CSV, Excel, JSON or Parquet securely." },
-              { step: "2", title: "Configure", desc: "Choose preprocessing options or use smart defaults." },
-              { step: "3", title: "Download", desc: "View results, preview changes, and export processed files." }
-            ].map((s, i) => (
-              <div key={i} className="p-6 bg-white border border-slate-200 rounded-2xl text-center">
-                <div className="mx-auto w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold mb-3">{s.step}</div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">{s.title}</h3>
-                <p className="text-slate-600">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="pricing" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">Simple, transparent pricing</h2>
-            <p className="mt-4 text-lg md:text-xl text-slate-600">Start for free, upgrade as you grow.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 relative overflow-hidden flex flex-col">
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Free Trial</h3>
-              <div className="text-4xl font-extrabold text-slate-900 mb-6">$0</div>
-              <p className="text-slate-600 mb-8">Perfect for testing and small ad-hoc tasks.</p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3 text-slate-700">
-                  <CheckCircle size={20} className="text-green-500" /> No API Key required
-                </li>
-                <li className="flex items-center gap-3 text-slate-700">
-                  <CheckCircle size={20} className="text-green-500" /> 5MB File Limit
-                </li>
-                <li className="flex items-center gap-3 text-slate-700">
-                  <CheckCircle size={20} className="text-green-500" /> 24-hour Data Retention
-                </li>
-                <li className="flex items-center gap-3 text-slate-700">
-                  <CheckCircle size={20} className="text-green-500" /> Basic Preprocessing
-                </li>
-              </ul>
-              <div className="mt-auto">
-                <Link to="/try" className="btn-primary w-full block text-center py-3 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors">Start Free Trial</Link>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-900 p-8 relative overflow-hidden flex flex-col">
-              <div className="absolute top-0 right-0 bg-slate-900 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Developer API</h3>
-              <div className="text-4xl font-extrabold text-slate-900 mb-6">Free <span className="text-lg font-normal text-slate-500">/ forever</span></div>
-              <p className="text-slate-600 mb-8">For developers building data pipelines.</p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3 text-slate-700">
-                  <CheckCircle size={20} className="text-indigo-600" /> 1GB Monthly Quota
-                </li>
-                <li className="flex items-center gap-3 text-slate-700">
-                  <CheckCircle size={20} className="text-indigo-600" /> 50MB File Limit
-                </li>
-                <li className="flex items-center gap-3 text-slate-700">
-                  <CheckCircle size={20} className="text-indigo-600" /> Full API Access
-                </li>
-                <li className="flex items-center gap-3 text-slate-700">
-                  <CheckCircle size={20} className="text-indigo-600" /> Persistent History
-                </li>
-                <li className="flex items-center gap-3 text-slate-700">
-                  <CheckCircle size={20} className="text-indigo-600" /> Advanced Quality Reports
-                </li>
-              </ul>
-              <div className="mt-auto">
-                <Link to="/login?mode=register" className="block w-full text-center py-3 rounded-lg bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors">
-                  Get API Key
+              <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                <Link to="/try" className="px-6 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-semibold flex items-center justify-center gap-2">
+                  Start Free Trial <ArrowRight size={18} />
+                </Link>
+                <Link to="/login" className="px-6 py-3 rounded-xl border border-white/20 hover:bg-white/10 text-slate-100 font-semibold flex items-center justify-center gap-2">
+                  <KeyRound size={18} /> Create API Access
                 </Link>
               </div>
             </div>
+
+            <div className="glass-panel p-4 sm:p-6 rounded-2xl border border-white/15 shadow-2xl shadow-indigo-900/30">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="rounded-xl bg-white/5 border border-white/10 p-4">
+                  <p className="text-xs uppercase text-slate-400">Quality Score</p>
+                  <p className="text-3xl font-bold text-white mt-2">97.2</p>
+                  <p className="text-emerald-300 text-sm mt-2">Consistent month over month</p>
+                </div>
+                <div className="rounded-xl bg-white/5 border border-white/10 p-4">
+                  <p className="text-xs uppercase text-slate-400">Jobs Processed</p>
+                  <p className="text-3xl font-bold text-white mt-2">1,284</p>
+                  <p className="text-cyan-300 text-sm mt-2">Stable and monitored</p>
+                </div>
+                <div className="sm:col-span-2 rounded-xl bg-gradient-to-br from-indigo-500/30 to-cyan-400/20 border border-indigo-200/20 p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-medium text-indigo-100">Pipeline Health</span>
+                    <LineChart className="text-indigo-100" size={18} />
+                  </div>
+                  <div className="h-2 bg-white/15 rounded-full overflow-hidden">
+                    <div className="h-full w-[82%] bg-gradient-to-r from-cyan-300 to-indigo-300 rounded-full" />
+                  </div>
+                  <p className="text-sm text-slate-200 mt-3">82% of active workflows are fully optimized and policy-compliant.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-slate-50">
+      <section id="features" className="py-16 sm:py-20 border-y border-white/10 bg-slate-900/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="p-8 rounded-2xl bg-white border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <h3 className="text-2xl font-bold text-slate-900">Ready to clean your data?</h3>
-              <p className="text-slate-600 mt-1">Start a free trial or get a forever‑free API key.</p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <Link to="/try" className="px-5 py-3 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors text-center">
-                Start Free Trial
-              </Link>
-              <Link to="/login?mode=register" className="px-5 py-3 rounded-lg border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition-colors text-center">
-                Get API Key
-              </Link>
-            </div>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">Built for reliability and scale.</h2>
+            <p className="mt-4 text-slate-300 max-w-2xl mx-auto">A complete toolkit for teams that need clean, dependable datasets without operational overhead.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {features.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="glass-panel rounded-2xl p-6 border border-white/10 hover:border-indigo-300/40 transition-colors">
+                <div className="w-11 h-11 rounded-xl bg-indigo-500/20 text-indigo-200 flex items-center justify-center mb-4">
+                  <Icon size={22} />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
+                <p className="text-slate-300">{text}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <footer className="bg-slate-900 text-slate-400 py-12">
+      <section id="how-it-works" className="py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-            <div className="flex items-center justify-center gap-2 mb-4 md:mb-0">
-              <Database className="h-6 w-6 text-white" />
-              <span className="text-lg font-bold text-white">DataPrep AI</span>
+          <div className="flex items-center gap-2 text-indigo-200 mb-6">
+            <WandSparkles size={18} />
+            <span className="text-sm uppercase tracking-widest">Workflow</span>
+          </div>
+          <div className="grid md:grid-cols-3 gap-5">
+            {steps.map((step, idx) => (
+              <div key={step.title} className="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div className="w-9 h-9 rounded-full bg-indigo-500 text-white font-bold flex items-center justify-center mb-4">{idx + 1}</div>
+                <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
+                <p className="text-slate-300 text-sm">{step.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" className="pb-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-7 flex flex-col">
+              <h3 className="text-2xl font-bold text-white">Free Trial</h3>
+              <p className="text-4xl font-extrabold text-white mt-3">$0</p>
+              <p className="text-slate-300 mt-2 mb-6">For evaluation and quick dataset checks.</p>
+              <ul className="space-y-3 text-slate-200 mb-8">
+                <li className="flex items-center gap-2"><CheckCircle size={18} className="text-emerald-300" /> No API key required</li>
+                <li className="flex items-center gap-2"><CheckCircle size={18} className="text-emerald-300" /> 5MB file uploads</li>
+                <li className="flex items-center gap-2"><CheckCircle size={18} className="text-emerald-300" /> Core preprocessing tools</li>
+              </ul>
+              <Link to="/try" className="mt-auto text-center rounded-xl bg-white text-slate-900 px-4 py-3 font-semibold hover:bg-slate-100">Start Trial</Link>
             </div>
-            <div className="text-sm">
-              &copy; {new Date().getFullYear()} DataPrep AI Inc. All rights reserved.
+
+            <div className="rounded-2xl border-2 border-indigo-300/70 bg-indigo-500/15 p-7 flex flex-col shadow-xl shadow-indigo-900/30">
+              <span className="inline-block text-xs font-bold tracking-wide px-2 py-1 rounded-md bg-indigo-300 text-slate-950 mb-4 w-fit">RECOMMENDED</span>
+              <h3 className="text-2xl font-bold text-white">Developer API</h3>
+              <p className="text-4xl font-extrabold text-white mt-3">Free</p>
+              <p className="text-slate-200 mt-2 mb-6">For recurring workflows and integrations.</p>
+              <ul className="space-y-3 text-slate-100 mb-8">
+                <li className="flex items-center gap-2"><CheckCircle size={18} className="text-cyan-300" /> 1GB monthly quota</li>
+                <li className="flex items-center gap-2"><CheckCircle size={18} className="text-cyan-300" /> 50MB uploads</li>
+                <li className="flex items-center gap-2"><CheckCircle size={18} className="text-cyan-300" /> Full reporting and history</li>
+              </ul>
+              <Link to="/login?mode=register" className="mt-auto text-center rounded-xl bg-indigo-500 text-white px-4 py-3 font-semibold hover:bg-indigo-400">Get API Key</Link>
             </div>
           </div>
         </div>
-      </footer>
+      </section>
     </div>
   );
 };
