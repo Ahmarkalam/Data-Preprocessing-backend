@@ -172,18 +172,3 @@ python tests/test_complete_workflow.py YOUR_API_KEY
 - Input validation
 - SQL injection protection (SQLAlchemy ORM)
 
-## 📝 License
-
-[Add your license here]
-
-## 🤝 Contributing
-
-[Add contributing guidelines here]
-
-## 📞 Support
-
-For issues and questions, please open an issue on GitHub.
-
----
-
-**Made with ❤️ for AI/ML teams**
